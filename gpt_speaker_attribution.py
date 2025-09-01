@@ -48,42 +48,56 @@ def predict_speakers(
         Whether to hide speaker names in the prompt.
     """
 
+    messages: List[Dict[str, str]] = []
+
     if hide_names:
-        conversation = "\n".join(
-            f"{i+1}. {turn['text']}" for i, turn in enumerate(turns)
+        system_msg = (
+            "You will be given a conversation between two speakers: "
+            f"{speaker_a} and {speaker_b}. The conversation messages use the "
+            "placeholder roles 'Speaker 1' and 'Speaker 2'. The first message "
+            "after this system prompt is message 1, the next is message 2, and "
+            "so on. Determine which real speaker said each message and return a "
+            "JSON object mapping message numbers (as strings) to the speaker's "
+            "name."
         )
-        prompt = (
-            f"Given a conversation between two speakers: {speaker_a} and {speaker_b}.\n"
-            f"Each line is numbered but speaker names are hidden.\n"
-            f"Return a JSON object mapping line numbers (as strings) to the speaker who said it.\n\n"
-            f"Conversation:\n{conversation}\n"
-        )
+        messages.append({"role": "system", "content": system_msg})
+
+        for turn in turns:
+            placeholder = "Speaker 1" if turn["speaker"] == speaker_a else "Speaker 2"
+            messages.append({"role": placeholder, "content": turn["text"]})
     else:
-        conversation = "\n".join(
-            f"{i+1}. {turn['speaker']}: {turn['text']}" for i, turn in enumerate(turns)
+        system_msg = (
+            "You will be given a conversation between two speakers. Each "
+            "message's role is the speaker's name. The first message after this "
+            "system prompt is message 1, the next is message 2, and so on. "
+            "Return a JSON object mapping message numbers (as strings) to the "
+            "speaker's name."
         )
-        prompt = (
-            f"Given a conversation between two speakers: {speaker_a} and {speaker_b}.\n"
-            f"Each line is numbered with speaker names included.\n"
-            f"Return a JSON object mapping line numbers (as strings) to the speaker who said it.\n\n"
-            f"Conversation:\n{conversation}\n"
-        )
+        messages.append({"role": "system", "content": system_msg})
+
+        for turn in turns:
+            messages.append({"role": turn["speaker"], "content": turn["text"]})
+
+    messages.append(
+        {
+            "role": "user",
+            "content": "Respond with the JSON mapping now.",
+        }
+    )
 
     version = "hidden" if hide_names else "names"
 
-    # Log the input prompt with identifiers
     logger.info(
         "Conversation %d Session %d (%s) GPT INPUT:\n%s",
         conv_idx,
         session_idx,
         version,
-        prompt,
+        json.dumps(messages, ensure_ascii=False, indent=2),
     )
 
-    response = client.responses.create(model="gpt-4o-mini", input=prompt)
+    response = client.responses.create(model="gpt-4o-mini", input=messages)
     text = response.output_text.strip()
 
-    # Log the raw output with identifiers
     logger.info(
         "Conversation %d Session %d (%s) GPT OUTPUT:\n%s",
         conv_idx,
@@ -126,7 +140,8 @@ def main() -> None:
     total_correct_names = 0
     total_lines_names = 0
 
-    output_file = open("outputs.txt", "w", encoding="utf-8")
+    results_hidden: Dict[str, Dict[str, Dict[str, object]]] = {}
+    results_names: Dict[str, Dict[str, Dict[str, object]]] = {}
 
     for conv_idx, sample in enumerate(dataset, start=1):
         conv = sample["conversation"]
@@ -165,7 +180,17 @@ def main() -> None:
                     f"Conversation {conv_idx} Session {session_idx} (hidden): {accuracy_hidden:.2%} accuracy"
                 )
                 print(line_hidden)
-                output_file.write(line_hidden + "\n")
+
+                conv_key = f"conversation{conv_idx}"
+                sess_key = f"session{session_idx}"
+                results_hidden.setdefault(conv_key, {})[sess_key] = {
+                    "answers": gold,
+                    "predict": [
+                        prediction_hidden.get(str(i), "")
+                        for i in range(1, len(gold) + 1)
+                    ],
+                    "accuracy": accuracy_hidden,
+                }
 
             if mode in ("names", "both"):
                 prediction_names = predict_speakers(
@@ -188,7 +213,17 @@ def main() -> None:
                     f"Conversation {conv_idx} Session {session_idx} (names): {accuracy_names:.2%} accuracy"
                 )
                 print(line_names)
-                output_file.write(line_names + "\n")
+
+                conv_key = f"conversation{conv_idx}"
+                sess_key = f"session{session_idx}"
+                results_names.setdefault(conv_key, {})[sess_key] = {
+                    "answers": gold,
+                    "predict": [
+                        prediction_names.get(str(i), "")
+                        for i in range(1, len(gold) + 1)
+                    ],
+                    "accuracy": accuracy_names,
+                }
 
     if mode in ("hidden", "both"):
         overall_hidden = (
@@ -198,7 +233,10 @@ def main() -> None:
             f"Overall accuracy across all sessions (hidden): {overall_hidden:.2%}"
         )
         print(summary_hidden)
-        output_file.write(summary_hidden + "\n")
+        results_hidden["overall_accuracy"] = overall_hidden
+
+        with open("outputs_hidden.json", "w", encoding="utf-8") as f_out:
+            json.dump(results_hidden, f_out, ensure_ascii=False, indent=2)
 
     if mode in ("names", "both"):
         overall_names = (
@@ -208,9 +246,10 @@ def main() -> None:
             f"Overall accuracy across all sessions (names): {overall_names:.2%}"
         )
         print(summary_names)
-        output_file.write(summary_names + "\n")
+        results_names["overall_accuracy"] = overall_names
 
-    output_file.close()
+        with open("outputs_names.json", "w", encoding="utf-8") as f_out:
+            json.dump(results_names, f_out, ensure_ascii=False, indent=2)
 
 
 if __name__ == "__main__":
