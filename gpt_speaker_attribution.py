@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import logging
 from typing import List, Dict
 
 try:
@@ -9,8 +10,20 @@ except ImportError as e:
     raise SystemExit("The openai package is required to run this script. Install it via 'pip install openai'.")
 
 
+# =====================
+# Logger configuration
+# =====================
+logging.basicConfig(
+    filename="locomo10_250901_14-20.log",
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    encoding="utf-8"
+)
+logger = logging.getLogger(__name__)
+
+
 def predict_speakers(client: OpenAI, speaker_a: str, speaker_b: str, lines: List[str]) -> Dict[str, str]:
-    """Ask a GPT model to predict which speaker spoke each line."""
+    """Ask a GPT model to predict which speaker spoke each line, with logging."""
     conversation = "\n".join(f"{i+1}. {line}" for i, line in enumerate(lines))
     prompt = (
         f"Given a conversation between two speakers: {speaker_a} and {speaker_b}.\n"
@@ -18,8 +31,16 @@ def predict_speakers(client: OpenAI, speaker_a: str, speaker_b: str, lines: List
         f"Return a JSON object mapping line numbers (as strings) to the speaker who said it.\n\n"
         f"Conversation:\n{conversation}\n"
     )
+
+    # Log the input prompt
+    logger.info("========== GPT INPUT ==========\n%s", prompt)
+
     response = client.responses.create(model="gpt-4o-mini", input=prompt)
     text = response.output_text.strip()
+
+    # Log the raw output
+    logger.info("========== GPT OUTPUT ==========\n%s", text)
+
     try:
         return json.loads(text)
     except json.JSONDecodeError:
