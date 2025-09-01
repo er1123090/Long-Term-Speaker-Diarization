@@ -5691,3 +5691,76 @@ Here's the JSON object mapping the line numbers to the respective speakers:
   "17": "Dave"
 }
 ```
+2025-09-01 14:45:35,494 [INFO] Conversation 1 Session 1 (names) GPT INPUT:
+Given a conversation between two speakers: Caroline and Melanie.
+Each line is numbered with speaker names included.
+Return a JSON object mapping line numbers (as strings) to the speaker who said it.
+
+Conversation:
+1. Caroline: Hey Mel! Good to see you! How have you been?
+2. Melanie: Hey Caroline! Good to see you! I'm swamped with the kids & work. What's up with you? Anything new?
+3. Caroline: I went to a LGBTQ support group yesterday and it was so powerful.
+4. Melanie: Wow, that's cool, Caroline! What happened that was so awesome? Did you hear any inspiring stories?
+5. Caroline: The transgender stories were so inspiring! I was so happy and thankful for all the support.
+6. Melanie: Wow, love that painting! So cool you found such a helpful group. What's it done for you?
+7. Caroline: The support group has made me feel accepted and given me courage to embrace myself.
+8. Melanie: That's really cool. You've got guts. What now?
+9. Caroline: Gonna continue my edu and check out career options, which is pretty exciting!
+10. Melanie: Wow, Caroline! What kinda jobs are you thinkin' of? Anything that stands out?
+11. Caroline: I'm keen on counseling or working in mental health - I'd love to support those with similar issues.
+12. Melanie: You'd be a great counselor! Your empathy and understanding will really help the people you work with. By the way, take a look at this.
+13. Caroline: Thanks, Melanie! That's really sweet. Is this your own painting?
+14. Melanie: Yeah, I painted that lake sunrise last year! It's special to me.
+15. Caroline: Wow, Melanie! The colors really blend nicely. Painting looks like a great outlet for expressing yourself.
+16. Melanie: Thanks, Caroline! Painting's a fun way to express my feelings and get creative. It's a great way to relax after a long day.
+17. Caroline: Totally agree, Mel. Relaxing and expressing ourselves is key. Well, I'm off to go do some research.
+18. Melanie: Yep, Caroline. Taking care of ourselves is vital. I'm off to go swimming with the kids. Talk to you soon!
+
+2025-09-01 14:45:40,110 [INFO] HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2025-09-01 14:45:40,173 [INFO] Conversation 1 Session 1 (names) GPT OUTPUT:
+```json
+{
+  "1": "Caroline",
+  "2": "Melanie",
+  "3": "Caroline",
+  "4": "Melanie",
+  "5": "Caroline",
+  "6": "Melanie",
+  "7": "Caroline",
+  "8": "Melanie",
+  "9": "Caroline",
+  "10": "Melanie",
+  "11": "Caroline",
+  "12": "Melanie",
+  "13": "Caroline",
+  "14": "Melanie",
+  "15": "Caroline",
+  "16": "Melanie",
+  "17": "Caroline",
+  "18": "Melanie"
+}
+```
+2025-09-01 14:45:40,174 [INFO] Conversation 1 Session 2 (names) GPT INPUT:
+Given a conversation between two speakers: Caroline and Melanie.
+Each line is numbered with speaker names included.
+Return a JSON object mapping line numbers (as strings) to the speaker who said it.
+
+Conversation:
+1. Melanie: Hey Caroline, since we last chatted, I've had a lot of things happening to me. I ran a charity race for mental health last Saturday – it was really rewarding. Really made me think about taking care of our minds.
+2. Caroline: That charity race sounds great, Mel! Making a difference & raising awareness for mental health is super rewarding - I'm really proud of you for taking part!
+3. Melanie: Thanks, Caroline! The event was really thought-provoking. I'm starting to realize that self-care is really important. It's a journey for me, but when I look after myself, I'm able to better look after my family.
+4. Caroline: I totally agree, Melanie. Taking care of ourselves is so important - even if it's not always easy. Great that you're prioritizing self-care.
+5. Melanie: Yeah, it's tough. So I'm carving out some me-time each day - running, reading, or playing my violin - which refreshes me and helps me stay present for my fam!
+6. Caroline: That's great, Mel! Taking time for yourself is so important. You're doing an awesome job looking after yourself and your family!
+7. Melanie: Thanks, Caroline. It's still a work in progress, but I'm doing my best. My kids are so excited about summer break! We're thinking about going camping next month. Any fun plans for the summer?
+8. Caroline: Researching adoption agencies — it's been a dream to have a family and give a loving home to kids who need it.
+9. Melanie: Wow, Caroline! That's awesome! Taking in kids in need - you're so kind. Your future family is gonna be so lucky to have you!
+10. Caroline: Thanks, Mel! My goal is to give kids a loving home. I'm truly grateful for all the support I've got from friends and mentors. Now the hard work starts to turn my dream into a reality. And here's one of the adoption agencies I'm looking into. It's a lot to take in, but I'm feeling hopeful and optimistic.
+11. Melanie: Wow, that agency looks great! What made you pick it?
+12. Caroline: I chose them 'cause they help LGBTQ+ folks with adoption. Their inclusivity and support really spoke to me.
+13. Melanie: That's great, Caroline! Loving the inclusivity and support. Anything you're excited for in the adoption process?
+14. Caroline: I'm thrilled to make a family for kids who need one. It'll be tough as a single parent, but I'm up for the challenge!
+15. Melanie: You're doing something amazing! Creating a family for those kids is so lovely. You'll be an awesome mom! Good luck!
+16. Caroline: Thanks, Melanie! Your kind words really mean a lot. I'll do my best to make sure these kids have a safe and loving home.
+17. Melanie: No doubts, Caroline. You have such a caring heart - they'll get all the love and stability they need! Excited for this new chapter!
+
