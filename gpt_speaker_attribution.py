@@ -15,7 +15,7 @@ except ImportError as e:
 # Logger configuration
 # =====================
 logging.basicConfig(
-    filename="locomo10_250901_14-49.log",
+    filename="locomo10_250901_15-11.log",
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     encoding="utf-8"
