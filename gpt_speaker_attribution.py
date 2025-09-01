@@ -48,42 +48,38 @@ def predict_speakers(
         Whether to hide speaker names in the prompt.
     """
 
-    messages: List[Dict[str, str]] = []
-
     if hide_names:
         system_msg = (
-            "You will be given a conversation between two speakers: "
-            f"{speaker_a} and {speaker_b}. The conversation messages use the "
-            "placeholder roles 'Speaker 1' and 'Speaker 2'. The first message "
-            "after this system prompt is message 1, the next is message 2, and "
-            "so on. Determine which real speaker said each message and return a "
-            "JSON object mapping message numbers (as strings) to the speaker's "
-            "name."
+            "You will be given the full conversation between two speakers: "
+            f"{speaker_a} and {speaker_b}. The conversation is provided as a "
+            "single user message. Each line is numbered starting at 1 and "
+            "prefixed with either 'Speaker 1:' or 'Speaker 2:'. Determine which "
+            "real speaker said each line and return a JSON object mapping line "
+            "numbers (as strings) to the speaker's name."
         )
-        messages.append({"role": "system", "content": system_msg})
-
-        for turn in turns:
+        lines = []
+        for i, turn in enumerate(turns, start=1):
             placeholder = "Speaker 1" if turn["speaker"] == speaker_a else "Speaker 2"
-            messages.append({"role": placeholder, "content": turn["text"]})
+            lines.append(f"{i}. {placeholder}: {turn['text']}")
     else:
         system_msg = (
-            "You will be given a conversation between two speakers. Each "
-            "message's role is the speaker's name. The first message after this "
-            "system prompt is message 1, the next is message 2, and so on. "
-            "Return a JSON object mapping message numbers (as strings) to the "
+            "You will be given the full conversation between two speakers. "
+            "The conversation is provided as a single user message where each "
+            "line is numbered starting at 1 and prefixed with the speaker's "
+            "name. Return a JSON object mapping line numbers (as strings) to the "
             "speaker's name."
         )
-        messages.append({"role": "system", "content": system_msg})
+        lines = [
+            f"{i}. {turn['speaker']}: {turn['text']}"
+            for i, turn in enumerate(turns, start=1)
+        ]
 
-        for turn in turns:
-            messages.append({"role": turn["speaker"], "content": turn["text"]})
+    conversation = "\n".join(lines)
 
-    messages.append(
-        {
-            "role": "user",
-            "content": "Respond with the JSON mapping now.",
-        }
-    )
+    messages = [
+        {"role": "system", "content": system_msg},
+        {"role": "user", "content": conversation},
+    ]
 
     version = "hidden" if hide_names else "names"
 
